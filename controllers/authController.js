@@ -46,7 +46,18 @@ module.exports.register = async (req, res, next) => {
 };
 
 module.exports.login = async (req, res, next) => {
+	if (!req.body.email || !req.body.password) {
+		return next(createError({ status: 400, message: 'Email, and Password are required' }));
+	}
 	try {
+		const user = await User.findOne({ username: req.body.username }).exec();
+		if (!user) {
+			return next(createError({ status: 404, message: 'No user found' }));
+		}
+		const isPasswordCorrect = await bcrypt.compare(req.body.password, user.password);
+		if (!isPasswordCorrect) {
+			return next(createError({ status: 404, message: 'Password incorrect' }));
+		}
 	} catch (err) {
 		console.log(err);
 		return next(err);

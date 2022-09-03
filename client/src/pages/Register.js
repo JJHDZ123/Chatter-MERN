@@ -1,5 +1,5 @@
 import React, { Fragment, useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
 import axios from 'axios';
 import toast from 'react-hot-toast';
@@ -7,6 +7,7 @@ import toast from 'react-hot-toast';
 import Logo from '../assets/Chatter.jpg';
 
 function Register() {
+	const navigate = useNavigate();
 	const [ values, setValues ] = useState({
 		username        : '',
 		email           : '',
@@ -46,11 +47,12 @@ function Register() {
 				password        : values.password,
 				confirmPassword : values.confirmPassword
 			};
-			console.log(user);
 			try {
 				await axios.post('/api/auth/register', user);
 
 				toast.success('User has been created!');
+
+				navigate('/');
 			} catch (err) {
 				console.log(err);
 				toast.error('error has happened!');
