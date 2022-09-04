@@ -1,5 +1,5 @@
 import { Fragment } from 'react';
-import { BrowserRouter, Routes, Route } from 'react-router-dom';
+import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { Toaster } from 'react-hot-toast';
 
 import Register from './pages/Register.js';
@@ -19,9 +19,10 @@ function App() {
 			/>
 			<BrowserRouter>
 				<Routes>
+					<Route path="/" element={<Navigate to="/login" />} />
 					<Route path="/Register" element={<Register />} />
 					<Route path="/Login" element={<Login />} />
-					<Route path="/" element={<Chat />} />
+					<Route path="/Chat" element={<Chat />} />
 				</Routes>
 			</BrowserRouter>
 		</Fragment>

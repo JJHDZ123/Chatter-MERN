@@ -37,9 +37,9 @@ function Login() {
 			try {
 				await axios.post('/api/auth/login', user);
 
-				toast.success('User has been created!');
+				toast.success('Login successful!');
 
-				navigate('/');
+				navigate('/Chat');
 			} catch (err) {
 				console.log(err);
 				toast.error('error has happened!');
