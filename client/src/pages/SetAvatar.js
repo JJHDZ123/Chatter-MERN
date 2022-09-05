@@ -1,13 +1,21 @@
 import React, { Fragment, useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
-import axios from 'axios';
+import axios from '../api/axios.js';
+import useAxiosPrivate from '../hooks/useAxiosPrivate.js';
 import { Buffer } from 'buffer';
 import toast from 'react-hot-toast';
+import useAuth from '../hooks/useAuth.js';
+import propCheck from '../hooks/propCheck.js';
+
+import Loading from '../components/Loading.js';
 
 function SetAvatar() {
 	const api = 'https://api.multiavatar.com/Chatter';
 	const navigate = useNavigate();
+	const axiosPrivate = useAxiosPrivate();
+
+	const { auth, setAuth } = useAuth();
 	const [ avatar, setAvatar ] = useState([]);
 	const [ isLoading, setIsLoading ] = useState(true);
 	const [ selectedAvatar, setSelectedAvatar ] = useState(undefined);
@@ -16,56 +24,83 @@ function SetAvatar() {
 		if (selectedAvatar === undefined) {
 			toast.error('please select an avatar');
 		} else {
-			const { data } = await axios.post(`api/users/setAvatar`, {
+			const { data } = await axiosPrivate.post(`/users/setAvatar/${auth.id}`, {
 				image : avatar[selectedAvatar]
 			});
 
-			if (data.isSet) {
+			const dataPropCheck = propCheck(() => data.isSet, undefined);
+
+			if (dataPropCheck) {
+				setAuth((prev) => {
+					const { isSet, image } = data;
+					return {
+						...prev,
+						avatarSet : isSet,
+						avatar    : image
+					};
+				});
+
+				toast.success('You look great!');
+
+				navigate('/chat');
+			} else {
+				toast.error('Error setting avatar, please try again.');
 			}
 		}
 	};
 
-	useEffect(() => {
-		async function fetchAvatar() {
-			const data = [];
-			for (let i = 0; i < 2; i++) {
-				const image = await axios.get(`${api}/${Math.round(Math.random() * 1000)}`);
-				const buffer = new Buffer(image.data);
-				data.push(buffer.toString('base64'));
+	useEffect(
+		() => {
+			if (auth.avatarSet) {
+				navigate('/chat');
 			}
-			setAvatar(data);
-			setIsLoading(false);
-		}
-		fetchAvatar();
-	}, []);
+
+			async function fetchAvatar() {
+				const data = [];
+				for (let i = 0; i < 4; i++) {
+					const image = await axios.get(`${api}/${Math.round(Math.random() * 1000)}`);
+					const buffer = new Buffer(image.data);
+					data.push(buffer.toString('base64'));
+				}
+				setAvatar(data);
+				setIsLoading(false);
+			}
+			fetchAvatar();
+		},
+		[ auth.avatarSet, navigate ]
+	);
 
 	return (
 		<Fragment>
-			<Container>
-				<div className="title-container">
-					<h1>Pick an avatar as a profile picture</h1>
-				</div>
-				<div className="avatars">
-					{isLoading ? (
-						<h1>LOADING...</h1>
-					) : (
-						avatar.map((currAvatar, index) => {
-							return (
-								<div key={index} className={`avatar ${selectedAvatar === index ? 'selected' : ''}`}>
-									<img
-										src={`data:image/svg+xml;base64,${currAvatar}`}
-										alt="avatar"
-										onClick={() => setSelectedAvatar(index)}
-									/>
-								</div>
-							);
-						})
-					)}
-				</div>
-				<button className="submit-btn" onClick={setProfilePicture}>
-					Set as profile picture
-				</button>
-			</Container>
+			{isLoading ? (
+				<Loading />
+			) : (
+				<Container>
+					<div className="title-container">
+						<h1>Pick an avatar as a profile picture</h1>
+					</div>
+					<div className="avatars">
+						{isLoading ? (
+							<h1>LOADING...</h1>
+						) : (
+							avatar.map((currAvatar, index) => {
+								return (
+									<div key={index} className={`avatar ${selectedAvatar === index ? 'selected' : ''}`}>
+										<img
+											src={`data:image/svg+xml;base64,${currAvatar}`}
+											alt="avatar"
+											onClick={() => setSelectedAvatar(index)}
+										/>
+									</div>
+								);
+							})
+						)}
+					</div>
+					<button className="submit-btn" onClick={setProfilePicture}>
+						Set as profile picture
+					</button>
+				</Container>
+			)}
 		</Fragment>
 	);
 }

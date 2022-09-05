@@ -1,16 +1,16 @@
 import React, { Fragment, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
-import axios from 'axios';
 import toast from 'react-hot-toast';
+import axios from '../api/axios.js';
 
 import Logo from '../assets/Chatter.jpg';
 
 import useAuth from '../hooks/useAuth';
 
 function Login() {
-	const { auth, setAuth } = useAuth();
 	const navigate = useNavigate();
+	const { setAuth } = useAuth();
 	const [ values, setValues ] = useState({
 		username : '',
 		password : ''
@@ -38,7 +38,7 @@ function Login() {
 				password : values.password
 			};
 			try {
-				const response = await axios.post('api/auth/login', user);
+				const response = await axios.post('/auth/login', user);
 
 				setAuth((prev) => {
 					const { _id, username, isAvatarImageSet, avatarImage } = response.data.foundUser;
@@ -54,7 +54,7 @@ function Login() {
 
 				toast.success('Login successful!');
 
-				auth.avatarSet ? navigate('/Chat') : navigate('/setAvatar');
+				navigate('/setAvatar');
 			} catch (err) {
 				console.log(err);
 				toast.error('error has happened!');

@@ -62,9 +62,9 @@ module.exports.login = async (req, res, next) => {
 			return next(createError({ status: 404, message: 'Password incorrect' }));
 		}
 
-		delete foundUser.password;
-		delete foundUser.email;
-		delete foundUser.__v;
+		foundUser.password = undefined;
+		foundUser.email = undefined;
+		foundUser.__v = undefined;
 
 		const accessToken = jwt.sign(
 			{
@@ -112,9 +112,9 @@ module.exports.handleRefreshToken = async (req, res, next) => {
 			return res.status(401).json({ message: 'Unauthorized' });
 		}
 
-		delete foundUser.password;
-		delete foundUser.email;
-		delete foundUser.__v;
+		foundUser.password = undefined;
+		foundUser.email = undefined;
+		foundUser.__v = undefined;
 
 		const accessToken = jwt.sign(
 			{
@@ -133,6 +133,10 @@ module.exports.handleRefreshToken = async (req, res, next) => {
 
 module.exports.logout = async (req, res, next) => {
 	try {
+		res.clearCookie('JWT', {
+			httpOnly : true
+		});
+		return res.status(200).json({ message: 'Logout was successful' });
 	} catch (err) {
 		console.log(err);
 		return next(err);
