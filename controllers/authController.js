@@ -62,9 +62,14 @@ module.exports.login = async (req, res, next) => {
 			return next(createError({ status: 404, message: 'Password incorrect' }));
 		}
 
+		delete foundUser.password;
+		delete foundUser.email;
+		delete foundUser.__v;
+
 		const accessToken = jwt.sign(
 			{
 				UserInfo : {
+					id       : foundUser._id,
 					username : foundUser.username
 				}
 			},
@@ -81,7 +86,7 @@ module.exports.login = async (req, res, next) => {
 			maxAge   : 24 * 60 * 60 * 1000
 		});
 
-		res.json({ accessToken });
+		res.json({ accessToken, foundUser });
 	} catch (err) {
 		console.log(err);
 		return next(err);
@@ -107,9 +112,14 @@ module.exports.handleRefreshToken = async (req, res, next) => {
 			return res.status(401).json({ message: 'Unauthorized' });
 		}
 
+		delete foundUser.password;
+		delete foundUser.email;
+		delete foundUser.__v;
+
 		const accessToken = jwt.sign(
 			{
 				UserInfo : {
+					id       : foundUser._id,
 					username : foundUser.username
 				}
 			},
@@ -117,7 +127,7 @@ module.exports.handleRefreshToken = async (req, res, next) => {
 			{ expiresIn: '1m' }
 		);
 
-		res.json({ accessToken });
+		res.json({ accessToken, foundUser });
 	});
 };
 

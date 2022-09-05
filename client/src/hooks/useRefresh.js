@@ -2,7 +2,7 @@ import axios from '../api/axios.js';
 import useAuth from './useAuth';
 
 const useRefresh = () => {
-	const { auth, setAuth } = useAuth();
+	const { setAuth } = useAuth();
 
 	const refresh = async () => {
 		const response = await axios.get('auth/refresh', {
@@ -10,13 +10,18 @@ const useRefresh = () => {
 		});
 
 		setAuth((prev) => {
-			console.log(JSON.stringify(prev));
-			console.log(response.data.accessToken);
-			return { ...prev, accessToken: response.data.accessToken };
+			const { _id, username, isAvatarImageSet, avatarImage } = response.data.foundUser;
+			return {
+				...prev,
+				accessToken : response.data.accessToken,
+				id          : _id,
+				username    : username,
+				avatarSet   : isAvatarImageSet,
+				avatar      : avatarImage
+			};
 		});
 		return response.data.accessToken;
 	};
-	console.log(auth);
 	return refresh;
 };
 

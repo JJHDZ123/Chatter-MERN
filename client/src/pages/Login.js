@@ -6,7 +6,10 @@ import toast from 'react-hot-toast';
 
 import Logo from '../assets/Chatter.jpg';
 
+import useAuth from '../hooks/useAuth';
+
 function Login() {
+	const { auth, setAuth } = useAuth();
 	const navigate = useNavigate();
 	const [ values, setValues ] = useState({
 		username : '',
@@ -35,11 +38,23 @@ function Login() {
 				password : values.password
 			};
 			try {
-				await axios.post('/api/auth/login', user);
+				const response = await axios.post('api/auth/login', user);
+
+				setAuth((prev) => {
+					const { _id, username, isAvatarImageSet, avatarImage } = response.data.foundUser;
+					return {
+						...prev,
+						accessToken : response.data.accessToken,
+						id          : _id,
+						username    : username,
+						avatarSet   : isAvatarImageSet,
+						avatar      : avatarImage
+					};
+				});
 
 				toast.success('Login successful!');
 
-				navigate('/Chat');
+				auth.avatarSet ? navigate('/Chat') : navigate('/setAvatar');
 			} catch (err) {
 				console.log(err);
 				toast.error('error has happened!');

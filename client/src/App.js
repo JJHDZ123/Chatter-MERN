@@ -5,6 +5,10 @@ import { Toaster } from 'react-hot-toast';
 import Register from './pages/Register.js';
 import Login from './pages/Login';
 import Chat from './pages/Chat';
+import SetAvatar from './pages/SetAvatar.js';
+import PersistLogin from './components/PersistLogin.js';
+import Unauthorized from './pages/Unauthorized.js';
+import RequireAuth from './components/RequireAuth.js';
 
 function App() {
 	return (
@@ -20,9 +24,15 @@ function App() {
 			<BrowserRouter>
 				<Routes>
 					<Route path="/" element={<Navigate to="/login" />} />
-					<Route path="/Register" element={<Register />} />
-					<Route path="/Login" element={<Login />} />
-					<Route path="/Chat" element={<Chat />} />
+					<Route path="/register" element={<Register />} />
+					<Route path="/login" element={<Login />} />
+					<Route path="/Unauthorized" element={<Unauthorized />} />
+					<Route element={<PersistLogin />}>
+						<Route element={<RequireAuth />}>
+							<Route path="/setAvatar" element={<SetAvatar />} />
+							<Route path="/Chat" element={<Chat />} />
+						</Route>
+					</Route>
 				</Routes>
 			</BrowserRouter>
 		</Fragment>
