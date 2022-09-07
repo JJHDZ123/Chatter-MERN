@@ -3,7 +3,7 @@ const { addMessage, getMessages } = require('../controllers/messageController.js
 
 const router = express.Router();
 
-router.post('/addmsg', addMessage);
 router.post('/getmsg', getMessages);
+router.post('/addmsg', addMessage);
 
 module.exports = router;

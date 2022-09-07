@@ -1,13 +1,39 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import styled from 'styled-components';
 import ChatInput from './chatcomponents/ChatInput';
 import useAxiosPrivate from '../../hooks/useAxiosPrivate';
 
 import Logout from './chatcomponents/Logout';
-import Messages from './chatcomponents/Messages';
+//import Messages from './chatcomponents/Messages';
 
-function ChatContainer({ currentChat }) {
-	const handleSendMessage = async (msg) => {};
+function ChatContainer({ currentChat, currentUserId }) {
+	const axiosPrivate = useAxiosPrivate();
+	const [ currChatMessages, setCurrChatMessages ] = useState([]);
+
+	useEffect(
+		() => {
+			async function fetchChatMessages() {
+				const response = await axiosPrivate.post('/messages/getmsg', {
+					from : currentUserId,
+					to   : currentChat._id
+				});
+
+				setCurrChatMessages(response.data);
+			}
+
+			fetchChatMessages();
+		},
+		[ currentChat, axiosPrivate, currentUserId ]
+	);
+
+	const handleSendMessage = async (msg) => {
+		await axiosPrivate.post('/messages/addmsg', {
+			from    : currentUserId,
+			to      : currentChat._id,
+			message : msg
+		});
+	};
+
 	return (
 		<Container>
 			<div className="chat-header">
@@ -23,14 +49,32 @@ function ChatContainer({ currentChat }) {
 					<Logout />
 				</div>
 			</div>
-			<Messages />
+			<div className="chat-messages">
+				{currChatMessages.map((message) => {
+					return (
+						<div key={message.message}>
+							<div className={`message ${message.fromSelf ? 'Sent' : 'Received'}`}>
+								<div className="content">
+									<p>{message.message}</p>
+								</div>
+							</div>
+						</div>
+					);
+				})}
+			</div>
 			<ChatInput handler={handleSendMessage} />
 		</Container>
 	);
 }
 
 const Container = styled.div`
-	padding-top: 1rem;
+	display: grid;
+	grid-template-rows: 10% 80% 10%;
+	gap: 0.1rem;
+	overflow: hidden;
+	@media screen and (min-width: 720px) and (max-width: 1080px) {
+		grid-template-rows: 15% 70% 15%;
+	}
 	.chat-header {
 		display: flex;
 		justify-content: space-between;
@@ -49,6 +93,47 @@ const Container = styled.div`
 		.username {
 			h3 {
 				color: white;
+			}
+		}
+	}
+
+	.chat-messages {
+		padding: 1rem 2rem;
+		display: flex;
+		flex-direction: column;
+		gap: 1rem;
+		overflow: auto;
+		&::-webkit-scrollbar {
+			width: 0.2rem;
+			&-thumb {
+				background-color: #ffffff39;
+				width: 0.1rem;
+				border-radius: 1rem;
+			}
+		}
+		.message {
+			display: flex;
+			align-items: center;
+			.content {
+				max-width: 40%;
+				overflow-wrap: break-word;
+				padding: 1rem;
+				font-size: 1.1rem;
+				border-radius: 1rem;
+				color: white;
+			}
+		}
+		.Sent {
+			justify-content: flex-end;
+			.content {
+				background-color: #4f04ff21;
+			}
+		}
+
+		.Received {
+			justify-content: flex-start;
+			.content {
+				background-color: #9900ff20;
 			}
 		}
 	}

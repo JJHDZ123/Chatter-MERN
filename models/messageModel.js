@@ -10,11 +10,9 @@ const MessageSchema = mongoose.Schema(
 		},
 		users   : Array,
 		sender  : {
-			type : {
-				type     : mongoose.Schema.Types.ObjectId,
-				ref      : 'User',
-				required : true
-			}
+			type     : mongoose.Schema.Types.ObjectId,
+			ref      : 'User',
+			required : true
 		}
 	},
 	{

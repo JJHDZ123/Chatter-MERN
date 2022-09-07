@@ -2,6 +2,21 @@ const Messages = require('../models/messageModel.js');
 
 module.exports.getMessages = async (req, res, next) => {
 	try {
+		const { from, to } = req.body;
+		const messages = await Messages.find({
+			users : {
+				$all : [ from, to ]
+			}
+		}).sort({ updatedAt: 1 });
+
+		const projectedMessages = messages.map((msg) => {
+			return {
+				fromSelf : msg.sender.toString() === from,
+				message  : msg.message.text
+			};
+		});
+
+		res.json(projectedMessages);
 	} catch (err) {
 		next(err);
 	}
@@ -9,6 +24,20 @@ module.exports.getMessages = async (req, res, next) => {
 
 module.exports.addMessage = async (req, res, next) => {
 	try {
+		const fromUser = req.id;
+		const { from, to, message } = req.body;
+
+		if (fromUser !== from) return res.json({ msg: 'Not same user' });
+
+		const data = await Messages.create({
+			message : { text: message },
+			users   : [ from, to ],
+			sender  : from
+		});
+
+		if (data) return res.json({ msg: 'Message added successfully.' });
+
+		return res.json({ msg: 'Failed to add message to the database.' });
 	} catch (err) {
 		next(err);
 	}

@@ -52,7 +52,7 @@ function Chat() {
 					{currentChat === undefined ? (
 						<SplashScreen currentUsername={auth.username} />
 					) : (
-						<ChatContainer currentChat={currentChat} />
+						<ChatContainer currentUserId={auth.id} currentChat={currentChat} />
 					)}
 				</div>
 			</Container>

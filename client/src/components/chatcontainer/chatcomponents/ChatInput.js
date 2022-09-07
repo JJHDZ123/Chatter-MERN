@@ -92,6 +92,7 @@ const Container = styled.div`
 				.emoji-search {
 					background-color: transparent;
 					border-color: #9a86f3;
+					color: white;
 				}
 				.emoji-group:before {
 					background-color: #080420;
@@ -109,7 +110,7 @@ const Container = styled.div`
 		background-color: #ffffff34;
 		input {
 			width: 90%;
-			height: 60%;
+
 			background-color: transparent;
 			color: white;
 			border: none;
