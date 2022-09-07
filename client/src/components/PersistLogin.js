@@ -3,6 +3,7 @@ import { Fragment, useState, useEffect } from 'react';
 import propCheck from '../hooks/propCheck.js';
 import useRefreshToken from '../hooks/useRefresh.js';
 import useAuth from '../hooks/useAuth.js';
+import Loading from './Loading.js';
 
 const PersistLogin = () => {
 	const [ isLoading, setIsLoading ] = useState(true);
@@ -40,7 +41,7 @@ const PersistLogin = () => {
 		[ isLoading, auth.accessToken ]
 	);
 
-	return <Fragment>{isLoading ? <p>Loading...</p> : <Outlet />}</Fragment>;
+	return <Fragment>{isLoading ? <Loading /> : <Outlet />}</Fragment>;
 };
 
 export default PersistLogin;

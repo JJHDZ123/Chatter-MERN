@@ -133,7 +133,7 @@ module.exports.handleRefreshToken = async (req, res, next) => {
 
 module.exports.logout = async (req, res, next) => {
 	try {
-		res.clearCookie('JWT', {
+		res.clearCookie('jwt', {
 			httpOnly : true
 		});
 		return res.status(200).json({ message: 'Logout was successful' });

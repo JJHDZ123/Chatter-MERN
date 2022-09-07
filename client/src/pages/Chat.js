@@ -1,5 +1,6 @@
-import React, { Fragment, useState, useEffect } from 'react';
+import React, { Fragment, useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { io } from 'socket.io-client';
 import toast from 'react-hot-toast';
 import styled from 'styled-components';
 
@@ -11,6 +12,7 @@ import SplashScreen from '../components/SplashScreen.js';
 import ChatContainer from '../components/chatcontainer/ChatContainer.js';
 
 function Chat() {
+	const socket = useRef();
 	const navigate = useNavigate();
 	const axiosPrivate = useAxiosPrivate();
 	const { auth } = useAuth();
@@ -31,6 +33,7 @@ function Chat() {
 			}
 
 			fetchUsers();
+			console.log(auth.id);
 		},
 		[ auth.avatarSet, auth.id, axiosPrivate, navigate ]
 	);

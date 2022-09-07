@@ -4,7 +4,6 @@ import ChatInput from './chatcomponents/ChatInput';
 import useAxiosPrivate from '../../hooks/useAxiosPrivate';
 
 import Logout from './chatcomponents/Logout';
-//import Messages from './chatcomponents/Messages';
 
 function ChatContainer({ currentChat, currentUserId }) {
 	const axiosPrivate = useAxiosPrivate();
