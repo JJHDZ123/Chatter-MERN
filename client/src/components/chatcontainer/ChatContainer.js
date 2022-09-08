@@ -1,13 +1,17 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
+import { v4 as uuidv4 } from 'uuid';
 import styled from 'styled-components';
 import ChatInput from './chatcomponents/ChatInput';
 import useAxiosPrivate from '../../hooks/useAxiosPrivate';
 
 import Logout from './chatcomponents/Logout';
+import propCheck from '../../hooks/propCheck';
 
-function ChatContainer({ currentChat, currentUserId }) {
+function ChatContainer({ currentChat, currentUserId, socket }) {
 	const axiosPrivate = useAxiosPrivate();
+	const scrollRef = useRef();
 	const [ currChatMessages, setCurrChatMessages ] = useState([]);
+	const [ arrivalMessage, setArrivalMessage ] = useState(null);
 
 	useEffect(
 		() => {
@@ -31,7 +35,50 @@ function ChatContainer({ currentChat, currentUserId }) {
 			to      : currentChat._id,
 			message : msg
 		});
+
+		socket.current.emit('send-msg', {
+			to      : currentChat._id,
+			from    : currentUserId,
+			message : msg
+		});
+
+		const msgs = [ ...currChatMessages ];
+
+		msgs.push({ fromSelf: true, message: msg });
+
+		setCurrChatMessages(msgs);
 	};
+
+	useEffect(
+		() => {
+			if (socket.current) {
+				socket.current.on('msg-recieved', (msg) => {
+					setArrivalMessage({ fromSelf: false, message: msg });
+				});
+			}
+		},
+		[ socket ]
+	);
+
+	useEffect(
+		() => {
+			arrivalMessage && setCurrChatMessages((prev) => [ ...prev, arrivalMessage ]);
+		},
+		[ arrivalMessage ]
+	);
+
+	useEffect(
+		() => {
+			const scrollChecker = propCheck(() => scrollRef.current, undefined);
+
+			if (!scrollChecker) {
+				return;
+			}
+
+			scrollRef.current.scrollIntoView({ behavior: 'smooth' });
+		},
+		[ currChatMessages ]
+	);
 
 	return (
 		<Container>
@@ -51,7 +98,7 @@ function ChatContainer({ currentChat, currentUserId }) {
 			<div className="chat-messages">
 				{currChatMessages.map((message) => {
 					return (
-						<div key={message.message}>
+						<div ref={scrollRef} key={uuidv4()}>
 							<div className={`message ${message.fromSelf ? 'Sent' : 'Received'}`}>
 								<div className="content">
 									<p>{message.message}</p>

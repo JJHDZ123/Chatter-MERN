@@ -33,9 +33,18 @@ function Chat() {
 			}
 
 			fetchUsers();
-			console.log(auth.id);
 		},
 		[ auth.avatarSet, auth.id, axiosPrivate, navigate ]
+	);
+
+	useEffect(
+		() => {
+			if (auth) {
+				socket.current = io('http://localhost:5000');
+				socket.current.emit('add-user', auth.id);
+			}
+		},
+		[ auth ]
 	);
 
 	const handleChatChange = (chat) => {
@@ -55,7 +64,7 @@ function Chat() {
 					{currentChat === undefined ? (
 						<SplashScreen currentUsername={auth.username} />
 					) : (
-						<ChatContainer currentUserId={auth.id} currentChat={currentChat} />
+						<ChatContainer currentUserId={auth.id} currentChat={currentChat} socket={socket} />
 					)}
 				</div>
 			</Container>
