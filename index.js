@@ -5,6 +5,7 @@ const cookieParser = require('cookie-parser');
 const socket = require('socket.io');
 const connectDB = require('./config/Database.js');
 const allRoutes = require('./routes/index.js');
+const path = require('path');
 require('dotenv').config();
 
 const PORT = process.env.PORT || 5000;
@@ -16,6 +17,12 @@ app.use(express.json());
 app.use(cookieParser());
 
 app.use('/api', allRoutes);
+
+app.use(express.static(path.resolve(__dirname, './client/build')));
+
+app.get('/', (req, res) => {
+	res.sendFile(path.resolve(__dirname, './client/build', 'index.html'));
+});
 
 const server = app.listen(PORT, () => {
 	connectDB();
